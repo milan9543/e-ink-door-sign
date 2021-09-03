@@ -1,0 +1,9 @@
+TINYPICO=/dev/cu.usbserial-020AAF78
+EMSYS_COMPILE=arduino-cli compile --fqbn esp32:esp32:tinypico
+EMSYS_UPLOAD=arduino-cli upload --fqbn esp32:esp32:tinypico
+
+.PHONY: StaticDoorSign 
+
+StaticDoorSign: StaticDoorSign/StaticDoorSign.ino
+	$(EMSYS_COMPILE) StaticDoorSign 
+	$(EMSYS_UPLOAD) -p $(TINYPICO) StaticDoorSign 
