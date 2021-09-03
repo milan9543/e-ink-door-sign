@@ -3,7 +3,8 @@
 #include "EPD.h"
 #include "GUI_Paint.h"
 #include "imagedata.h"
-#include "image.h"
+#include "image_b.h"
+#include "image_r.h"
 #include <stdlib.h>
 
 //Create a new image cache named IMAGE_BW and fill it with white
@@ -36,7 +37,7 @@ void redraw() {
 // ------------ Draw the base image -----------------------------
 void drawImage() {
   printf("show image for array\r\n");
-  EPD_7IN5B_V2_Display(screen_data_b, gImage_7in5_V2_ry);
+  EPD_7IN5B_V2_Display(screen_data_b, screen_data_r);
 }
 
 // --------------------------------------------------------------

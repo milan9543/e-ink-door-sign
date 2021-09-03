@@ -9,16 +9,16 @@ unsigned pixel_byte_pos;
 
 char img_array[48000];
 
-int main()
+int main(int argc, char *argv[])
 {
 
-    std::ifstream infile("pixels.raw");
+    std::ifstream infile(argv[1]);
 
     pixel_byte = 0;
     pixel_byte_pos = 0;
 
     int a;
-    fprintf(stdout, "const unsigned char screen_data_b[48000] = {\n");
+    fprintf(stdout, "const unsigned char %s[48000] = {\n", argv[2]);
     while(infile >> a){
             pixel_byte |= (a << (7-pixel_byte_pos)); // endianess issue
             pixel_byte_pos++;
