@@ -28,9 +28,9 @@ int main(int argc, char *argv[])
                pixel_byte = 0;
             }
     }
-    for(int i=0; i<7800; i++) {
-        fprintf(stdout, "0xFF,");
-    }
+    //for(int i=0; i<7800; i++) {
+    //    fprintf(stdout, "0xFF,");
+    //}
     printf("};\n");
 
 
