@@ -34,8 +34,7 @@ int main(int argc, char *argv[])
     }
 
     for(int j=0; j<i-1; j++) {
-        //fprintf(stdout, "%u,", img_array[j]&0xFF);
-        fprintf(stdout, "0,", img_array[j]&0xFF);
+        fprintf(stdout, "%u,", img_array[j]&0xFF);
     }
     fprintf(stdout, "%u", img_array[i-1]&0xFF);
 

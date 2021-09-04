@@ -68,7 +68,7 @@ void setup() {
 		printf("We have a binary message");
 	}
 
-        for(int i=0; i<48000; i++) {
+        for(int i=0; i<16384; i++) {
         	BlackImage[i] = message.c_str()[i];
         	RYImage[i] = 0xFF;
         }

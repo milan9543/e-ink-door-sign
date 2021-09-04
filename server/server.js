@@ -79,9 +79,14 @@ be_wss.on('connection', function connection(be_ws) {
 	    let rawdata_b = fs.readFileSync('_tmp/data_b.json');
 	    let data_b_json = JSON.parse(rawdata_b);  
 	
-	    var image_data = new Uint8Array(48000);
+	    //var image_data = new Uint8Array(48000);
+	    //for(var i=0; i<data_b_json.data.length; i++){
+	    //    image_data[i] = data_b_json.data[i];
+	    //}
+	    
+	    var image_data = new Uint8Array(16384);
 	    for(var i=0; i<data_b_json.data.length; i++){
-		image_data[i] = data_b_json.data[i];
+	        image_data[i] = data_b_json.data[i];
 	    }
 
 	    console.log(image_data);
