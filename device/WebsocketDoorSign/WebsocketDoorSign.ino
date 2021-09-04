@@ -47,9 +47,6 @@ void setup() {
     
     // run callback when messages are received
     client.onMessage([&](WebsocketsMessage message){
-        printf("Got Message: ");
-        printf(message.data().c_str());
-
         printf("Setting up the display\n");
     	DEV_Module_Init();
     	EPD_7IN5B_V2_Init();
@@ -67,8 +64,12 @@ void setup() {
         Paint_NewImage(BlackImage, EPD_7IN5B_V2_WIDTH, EPD_7IN5B_V2_HEIGHT , 0, WHITE);
         Paint_NewImage(RYImage, EPD_7IN5B_V2_WIDTH, EPD_7IN5B_V2_HEIGHT , 0, WHITE);
         
+	if(message.isBinary()) {
+		printf("We have a binary message");
+	}
+
         for(int i=0; i<48000; i++) {
-        	BlackImage[i] = 0xFF;
+        	BlackImage[i] = message.c_str()[i];
         	RYImage[i] = 0xFF;
         }
 

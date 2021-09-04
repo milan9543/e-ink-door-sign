@@ -75,24 +75,19 @@ be_wss.binaryType = 'arraybuffer'
 be_wss.on('connection', function connection(be_ws) {
     console.log("Backend connected...");
     
-    //exec("./prep_b.sh", (error, stdout, stderr) => {
-    //    if (error) {
-    //        console.log(`error: ${error.message}`);
-    //        return;
-    //    }
-    //    if (stderr) {
-    //        console.log(`stderr: ${stderr}`);
-    //        return;
-    //    }
-    //})
-
     os.execCommand("./prep_b.sh", function(returnvalue) {
 	    let rawdata_b = fs.readFileSync('_tmp/data_b.json');
 	    let data_b_json = JSON.parse(rawdata_b);  
-	    console.log(data_b_json);
 	
+	    var image_data = new Uint8Array(48000);
+	    for(var i=0; i<data_b_json.data.length; i++){
+		image_data[i] = data_b_json.data[i];
+	    }
+
+	    console.log(image_data);
+
 	    be_wss.clients.forEach(function each(client) {
-		client.send("Server->device test");
+		client.send(image_data.buffer);
 		    // Check if the screen images have been touched
 		        // if they have then turn them into binary payload
 			// send the data to the device
