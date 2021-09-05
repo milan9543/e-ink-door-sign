@@ -10,7 +10,7 @@
 
 const char* ssid = "stf_0x2a";
 const char* password = "jyrs3CkNqtqy";
-const char* websockets_server_host = "192.168.0.28"; //Enter server adress
+const char* websockets_server_host = "192.168.0.101"; //Enter server adress
 const uint16_t websockets_server_port = 1234; // Enter server port
 
 using namespace websockets;
@@ -18,6 +18,35 @@ using namespace websockets;
 UBYTE *BlackImage, *RYImage;
 
 WebsocketsClient client;
+
+void initScreen() {
+        UWORD Imagesize = ((EPD_7IN5B_V2_WIDTH % 8 == 0) ? (EPD_7IN5B_V2_WIDTH / 8 ) : (EPD_7IN5B_V2_WIDTH / 8 + 1)) * EPD_7IN5B_V2_HEIGHT;
+        if ((BlackImage = (UBYTE *)malloc(Imagesize)) == NULL) {
+          printf("Failed to apply for black memory...\r\n");
+          while(1);
+        }
+        if ((RYImage = (UBYTE *)malloc(Imagesize)) == NULL) {
+          printf("Failed to apply for red memory...\r\n");
+          while(1);
+        }
+        printf("NewImage:BlackImage and RYImage\r\n");
+        Paint_NewImage(BlackImage, EPD_7IN5B_V2_WIDTH, EPD_7IN5B_V2_HEIGHT , 0, WHITE);
+        Paint_NewImage(RYImage, EPD_7IN5B_V2_WIDTH, EPD_7IN5B_V2_HEIGHT , 0, WHITE);
+        
+    	for(int i=0; i<48000; i++) {
+    	    BlackImage[i] = 0xFF;
+    	    RYImage[i] = 0xFF;
+    	}
+}
+
+void renderDisp() {
+        printf("Setting up the display\n");
+    	DEV_Module_Init();
+    	EPD_7IN5B_V2_Init();
+        EPD_7IN5B_V2_Display(BlackImage, RYImage);
+}
+
+unsigned packet = 0;
 
 void setup() {
     // Connect to wifi
@@ -45,35 +74,37 @@ void setup() {
         printf("Not Connected!\n");
     }
     
+
     // run callback when messages are received
     client.onMessage([&](WebsocketsMessage message){
-        printf("Setting up the display\n");
-    	DEV_Module_Init();
-    	EPD_7IN5B_V2_Init();
 
-        UWORD Imagesize = ((EPD_7IN5B_V2_WIDTH % 8 == 0) ? (EPD_7IN5B_V2_WIDTH / 8 ) : (EPD_7IN5B_V2_WIDTH / 8 + 1)) * EPD_7IN5B_V2_HEIGHT;
-        if ((BlackImage = (UBYTE *)malloc(Imagesize)) == NULL) {
-          printf("Failed to apply for black memory...\r\n");
-          while(1);
-        }
-        if ((RYImage = (UBYTE *)malloc(Imagesize)) == NULL) {
-          printf("Failed to apply for red memory...\r\n");
-          while(1);
-        }
-        printf("NewImage:BlackImage and RYImage\r\n");
-        Paint_NewImage(BlackImage, EPD_7IN5B_V2_WIDTH, EPD_7IN5B_V2_HEIGHT , 0, WHITE);
-        Paint_NewImage(RYImage, EPD_7IN5B_V2_WIDTH, EPD_7IN5B_V2_HEIGHT , 0, WHITE);
-        
-	if(message.isBinary()) {
-		printf("We have a binary message");
+        switch(packet) {
+		// Black Image packet 0
+		case 0:
+			initScreen();
+        		for(int i=0; i<16384; i++) {
+        			BlackImage[i] = message.c_str()[i];
+        		}
+			packet++;
+		break;
+
+		// Black Image packet 1 
+		case 1:
+        		for(int i=0; i<16384; i++) {
+        			BlackImage[i + 1*16384] = message.c_str()[i];
+        		}
+			packet++;
+		break;
+
+		// Black Image packet 2 
+		case 2:
+        		for(int i=0; i<15232; i++) {
+        			BlackImage[i + 2*16384] = message.c_str()[i];
+        		}
+			renderDisp();
+			packet++;
+		break;
 	}
-
-        for(int i=0; i<16384; i++) {
-        	BlackImage[i] = message.c_str()[i];
-        	RYImage[i] = 0xFF;
-        }
-
-        EPD_7IN5B_V2_Display(BlackImage, RYImage);
     });
 }
 

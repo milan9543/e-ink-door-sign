@@ -79,24 +79,32 @@ be_wss.on('connection', function connection(be_ws) {
 	    let rawdata_b = fs.readFileSync('_tmp/data_b.json');
 	    let data_b_json = JSON.parse(rawdata_b);  
 	
-	    //var image_data = new Uint8Array(48000);
-	    //for(var i=0; i<data_b_json.data.length; i++){
-	    //    image_data[i] = data_b_json.data[i];
-	    //}
-	    
 	    var image_data = new Uint8Array(16384);
-	    for(var i=0; i<data_b_json.data.length; i++){
+	    for(var i=0; i<16384; i++){
 	        image_data[i] = data_b_json.data[i];
 	    }
 
-	    console.log(image_data);
-
 	    be_wss.clients.forEach(function each(client) {
 		client.send(image_data.buffer);
-		    // Check if the screen images have been touched
-		        // if they have then turn them into binary payload
-			// send the data to the device
 	    });
+
+	    for(var i=0; i<16384; i++){
+	        image_data[i] = data_b_json.data[i + 16384*1];
+	    }
+
+	    be_wss.clients.forEach(function each(client) {
+	        client.send(image_data.buffer);
+	    });
+
+	    for(var i=0; i<15232; i++){
+	        image_data[i] = data_b_json.data[i + 16384*2];
+	    }
+
+	    be_wss.clients.forEach(function each(client) {
+	        client.send(image_data.buffer);
+	    });
+
+
     });
 
 
