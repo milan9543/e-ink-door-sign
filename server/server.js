@@ -78,7 +78,11 @@ be_wss.on('connection', function connection(be_ws) {
     os.execCommand("./prep_b.sh", function(returnvalue) {
 	    let rawdata_b = fs.readFileSync('_tmp/data_b.json');
 	    let data_b_json = JSON.parse(rawdata_b);  
+
+	    let rawdata_r = fs.readFileSync('_tmp/data_r.json');
+	    let data_r_json = JSON.parse(rawdata_r);  
 	
+	    // First black image packet
 	    var image_data = new Uint8Array(16384);
 	    for(var i=0; i<16384; i++){
 	        image_data[i] = data_b_json.data[i];
@@ -88,6 +92,7 @@ be_wss.on('connection', function connection(be_ws) {
 		client.send(image_data.buffer);
 	    });
 
+	    // Second black image packet
 	    for(var i=0; i<16384; i++){
 	        image_data[i] = data_b_json.data[i + 16384*1];
 	    }
@@ -96,6 +101,7 @@ be_wss.on('connection', function connection(be_ws) {
 	        client.send(image_data.buffer);
 	    });
 
+	    // Final black image packet
 	    for(var i=0; i<15232; i++){
 	        image_data[i] = data_b_json.data[i + 16384*2];
 	    }
@@ -104,7 +110,35 @@ be_wss.on('connection', function connection(be_ws) {
 	        client.send(image_data.buffer);
 	    });
 
+	    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+	    // First red image packet
+	    for(var i=0; i<16384; i++){
+	        image_data[i] = data_r_json.data[i];
+	    }
 
+	    be_wss.clients.forEach(function each(client) {
+		client.send(image_data.buffer);
+	    });
+
+	    // Second red image packet
+	    for(var i=0; i<16384; i++){
+	        image_data[i] = data_r_json.data[i + 16384*1];
+	    }
+
+	    be_wss.clients.forEach(function each(client) {
+	        client.send(image_data.buffer);
+	    });
+
+	    // Final red image packet
+	    for(var i=0; i<15232; i++){
+	        image_data[i] = data_r_json.data[i + 16384*2];
+	    }
+
+	    be_wss.clients.forEach(function each(client) {
+	        client.send(image_data.buffer);
+	    });
+
+	    // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     });
 
 

@@ -7,6 +7,8 @@
 #include "GUI_Paint.h"
 #include <stdlib.h>
 
+#define uS_TO_S_FACTOR 1000000  //Conversion factor for micro seconds to seconds
+#define TIME_TO_SLEEP  120        //Time ESP32 will go to sleep (in seconds)
 
 const char* ssid = "stf_0x2a";
 const char* password = "jyrs3CkNqtqy";
@@ -101,7 +103,33 @@ void setup() {
         		for(int i=0; i<15232; i++) {
         			BlackImage[i + 2*16384] = message.c_str()[i];
         		}
+			packet++;
+		break;
+
+		// Red Image packet 0
+		case 3:
+        		for(int i=0; i<16384; i++) {
+        			RYImage[i] = message.c_str()[i];
+        		}
+			packet++;
+		break;
+
+		// Red Image packet 1
+		case 4:
+        		for(int i=0; i<16384; i++) {
+        			RYImage[i + 1*16384] = message.c_str()[i];
+        		}
+			packet++;
+		break;
+
+		// Red Image packet 2
+		case 5:
+        		for(int i=0; i<15232; i++) {
+        			RYImage[i + 2*16384] = message.c_str()[i];
+        		}
 			renderDisp();
+			esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+			esp_deep_sleep_start();
 			packet++;
 		break;
 	}
