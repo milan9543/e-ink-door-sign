@@ -10,12 +10,14 @@
 #define uS_TO_S_FACTOR 1000000  //Conversion factor for micro seconds to seconds
 #define TIME_TO_SLEEP  120        //Time ESP32 will go to sleep (in seconds)
 
-const char* ssid = "stf_0x2a";
+const char* ssid = "VM2702257";
 const char* password = "jyrs3CkNqtqy";
-const char* websockets_server_host = "192.168.0.101"; //Enter server adress
+const char* websockets_server_host = "192.168.0.25"; //Enter server adress
 const uint16_t websockets_server_port = 1234; // Enter server port
 
 using namespace websockets;
+
+hw_timer_t * timer = NULL; // Timeout for putting the device into sleep if it fails to get messages from the server/connect
 
 UBYTE *BlackImage, *RYImage;
 
@@ -43,6 +45,12 @@ void initScreen() {
 
 void renderDisp() {
         printf("Setting up the display\n");
+
+    	for(int i=0; i<8200; i++) {
+    	    BlackImage[i + 39800] = 0xFF;
+    	    RYImage[i + 39800] = 0xFF;
+    	}
+
     	DEV_Module_Init();
     	EPD_7IN5B_V2_Init();
         EPD_7IN5B_V2_Display(BlackImage, RYImage);
@@ -63,6 +71,8 @@ void setup() {
     // Check if connected to wifi
     if(WiFi.status() != WL_CONNECTED) {
         printf("No Wifi!\n");
+	esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+	esp_deep_sleep_start();
         return;
     }
 
@@ -109,7 +119,7 @@ void setup() {
 		// Red Image packet 0
 		case 3:
         		for(int i=0; i<16384; i++) {
-        			RYImage[i] = message.c_str()[i];
+        			//RYImage[i] = message.c_str()[i];
         		}
 			packet++;
 		break;
@@ -117,7 +127,7 @@ void setup() {
 		// Red Image packet 1
 		case 4:
         		for(int i=0; i<16384; i++) {
-        			RYImage[i + 1*16384] = message.c_str()[i];
+        			//RYImage[i + 1*16384] = message.c_str()[i];
         		}
 			packet++;
 		break;
@@ -125,7 +135,7 @@ void setup() {
 		// Red Image packet 2
 		case 5:
         		for(int i=0; i<15232; i++) {
-        			RYImage[i + 2*16384] = message.c_str()[i];
+        			//RYImage[i + 2*16384] = message.c_str()[i];
         		}
 			renderDisp();
 			esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
@@ -136,10 +146,19 @@ void setup() {
     });
 }
 
+unsigned loop_count = 0;
+const unsigned abort_limit = 100; 
+
 void loop() {
     // let the websockets client check for incoming messages
     if(client.available()) {
         client.poll();
     }
     delay(500);
+
+    loop_count = loop_count + 1;
+    if(loop_count >= abort_limit) {
+	esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+	esp_deep_sleep_start();
+    }
 }
