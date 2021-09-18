@@ -29,7 +29,7 @@ def main(argv):
        else:
            val = p
    
-       if val > 40:
+       if val > 25:
            print(1)
        else: 
            print(0)
